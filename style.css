@@ -1,4 +1,4 @@
-body {
+ body {
   font-family: 'Segoe UI', Arial, sans-serif;
   background-color: white;
   margin: 0;
@@ -23,7 +23,7 @@ body {
 
 .logo {
   font-size: 1.5em;
-  color: #ffe2b0;
+  color: #c0c0c0;
   font-weight: bold;
   letter-spacing: 2px;
   display: flex;
@@ -37,7 +37,7 @@ body {
 }
 
 .wallet-address {
-  color: #ffe2b0;
+  color: #c0c0c0;
   font-size: 1em;
   font-weight: 500;
   background: #563a19;
@@ -49,7 +49,7 @@ body {
 
 .connect-btn {
   background: linear-gradient(90deg, #a66c18, #3c1e06);
-  color: #ffe2b0;
+  color: #c0c0c0;
   border: none;
   border-radius: 5px;
   font-size: 1em;
@@ -57,7 +57,7 @@ body {
   font-weight: 600;
   cursor: pointer;
   letter-spacing: 1px;
-  margin: 0 4px;
+  margin-left: auto;
   transition: background 0.15s;
 }
 
@@ -77,7 +77,7 @@ body {
 
 .section-title {
   font-size: 1.15em;
-  color: #ffe2b0;
+  color: #c0c0c0;
   font-weight: 700;
   margin-bottom: 14px;
   text-align: center;
@@ -88,7 +88,7 @@ label {
   display: block;
   font-weight: 500;
   margin-bottom: 4px;
-  color: #ffe2b0;
+  color: #c0c0c0;
 }
 
 input, select, button.swap-btn {
@@ -99,19 +99,19 @@ input, select, button.swap-btn {
   margin-bottom: 13px;
   font-size: 1em;
   background: #3c1e06;
-  color: #ffe2b0;
+  color: #c0c0c0;
   box-sizing: border-box;
   transition: border-color 0.2s;
 }
 
 input:focus, select:focus {
-  border-color: #ffe2b0;
+  border-color: #c0c0c0;
   outline: none;
 }
 
 button.swap-btn {
   background: linear-gradient(90deg, #a66c18, #3c1e06);
-  color: #ffe2b0;
+  color: #c0c0c0;
   border: none;
   font-weight: 600;
   cursor: pointer;
@@ -125,7 +125,7 @@ button.swap-btn:disabled {
 
 .fee-note {
   font-size: 0.98em;
-  color: #ffe2b0;
+  color: #c0c0c0;
   margin-bottom: 12px;
   text-align: center;
   font-weight: 500;
@@ -140,9 +140,9 @@ button.swap-btn:disabled {
   transition: background 0.2s;
 }
 
-.status.success { background: #6d4e0c; color: #ffe2b0;}
-.status.error { background: #7c2d12; color: #ffe2b0;}
-.status.info { background: #5c3d1c; color: #ffe2b0;}
+.status.success { background: #6d4e0c; color: #c0c0c0;}
+.status.error { background: #7c2d12; color: #c0c0c0;}
+.status.info { background: #5c3d1c; color: #c0c0c0;}
 
 .center { text-align: center;}
 
@@ -157,7 +157,7 @@ button.swap-btn:disabled {
   color: #fff8ec;
 }
 
-.ad-title {font-size:1.13em; font-weight:700; color:#ffe2b0; margin-bottom:7px;}
+.ad-title {font-size:1.13em; font-weight:700; color:#c0c0c0; margin-bottom:7px;}
 .ad-desc {font-size:1em; color:#fff8ec;}
 
 .popup-bg {
@@ -171,7 +171,7 @@ button.swap-btn:disabled {
 
 .popup {
   background:#4a2d09;
-  color:#ffe2b0;
+  color:#c0c0c0;
   border-radius:7px;
   box-shadow:0 2px 15px #7c4d0388;
   max-width:95vw;
@@ -186,7 +186,7 @@ button.swap-btn:disabled {
   width:100%;
   margin:7px 0;
   background:#3c1e06;
-  color:#ffe2b0;
+  color:#c0c0c0;
   border:none;
   border-radius:6px;
   font-size:1.07em;
@@ -199,7 +199,7 @@ button.swap-btn:disabled {
 
 .fixo-logo-box {text-align:center; margin-top:22px;}
 .fixo-logo-img {width:95px; height:95px; object-fit:contain; margin-bottom:11px;}
-.fixo-logo-text {font-size:1.8em; font-weight:bold; color:#ffe2b0; letter-spacing:2px;}
+.fixo-logo-text {font-size:1.8em; font-weight:bold; color:#c0c0c0; letter-spacing:2px;}
 
 .network-select {
   width:100%;
@@ -209,7 +209,7 @@ button.swap-btn:disabled {
   margin-bottom:13px;
   font-size:1em;
   background:#3c1e06;
-  color:#ffe2b0;
+  color:#c0c0c0;
 }
 
 .custom-brand-bar {
@@ -217,7 +217,7 @@ button.swap-btn:disabled {
   background: linear-gradient(90deg,#7c4d03,#3c1e06);
   text-align: center;
   padding: 8px 0;
-  color: #ffe2b0;
+  color: #c0c0c0;
   font-size: 1em;
   font-weight: 600;
   letter-spacing: 1px;

@@ -1,1 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Solana Meme Token Swap DApp</title>
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,500,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #9945FF;
+      --accent: #19FB9B;
+      --bg: #f8f9fa;
+      --box: #fff;
+      --border: #e3e7ed;
+      --text: #22223b;
+      --gray: #6c757d;
+      --radius: 18px;
+      --shadow: 0 6px 32px rgba(60,72,88,0.11);
+      --error: #d90429;
+      --success: #20c997;
+    }
+    body {
+      background: var(--bg);
+      font-family: "Inter", "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      margin: 0;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 420px;
+      margin: 2.5rem auto 0 auto;
+      background: var(--box);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem 1.5rem 1.8rem 1.5rem;
+    }
+    h1, h2, h3 {
+      margin: 0 0 1.1rem 0;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .button, button, input[type="submit"] {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: 0.75rem 1.2rem;
+      font-size: 1.07rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 0.6rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .button.secondary {
+      background: var(--accent);
+    }
+    .button:disabled, button:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+    .button:hover:not(:disabled), button:hover:not(:disabled) {
+      filter: brightness(1.07);
+    }
+    input, select {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      font-size: 1rem;
+      margin-top: 0.4rem;
+      width: 100%;
+      box-sizing: border-box;
+      background: #f1f3f7;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus {
+      border-color: var(--primary);
+    }
+    .section {
+      margin-bottom: 2.2rem;
+    }
+    .wallet-card {
+      background: linear-gradient(120deg, var(--primary) 65%, var(--accent));
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 1.2rem 1.1rem;
+      margin-bottom: 1.8rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .wallet-address {
+      font-size: 1.01rem;
+      letter-spacing: 1px;
+      word-break: break-all;
+      opacity: 0.95;
+    }
+    .wallet-balance {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-top: 0.6rem;
+      color: #fff;
+      word-break: break-all;
+    }
+    .swap-box {
+      background: #f9fafb;
+      border-radius: 14px;
+      padding: 1.3rem 1rem;
+      box-shadow: 0 2px 12px rgba(130,87,230,0.07);
+      margin-bottom: 1.4rem;
+    }
+    .swap-row {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      margin-bottom: 1.1rem;
+    }
+    .swap-row:last-child {
+      margin-bottom: 0;
+    }
+    .swap-label {
+      flex: 0 0 80px;
+      font-weight: 500;
+      color: var(--gray);
+    }
+    .swap-input {
+      flex: 1;
+    }
+    .swap-select {
+      flex: 0 0 120px;
+    }
+    .swap-token-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #fafafa;
+      object-fit: contain;
+      border: 1px solid #ccc;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    .slippage-row {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      margin-bottom: 1.1rem;
+    }
+    .slippage-label {
+      flex: 0 0 80px;
+      font-weight: 500;
+      color: var(--gray);
+    }
+    .slippage-input {
+      width: 60px;
+      text-align: right;
+      font-size: 1rem;
+      border-radius: 6px;
+    }
+    .error-msg {
+      color: var(--error);
+      background: #ffe0e6;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 0.97rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .success-msg {
+      color: var(--success);
+      background: #e5fff7;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 0.97rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .tx-history {
+      margin-top: 2rem;
+    }
+    .tx-title {
+      font-size: 1.07rem;
+      color: var(--gray);
+      font-weight: 500;
+      margin-bottom: 0.6rem;
+    }
+    .tx-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .tx-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f3f4f6;
+      padding: 0.7rem 1rem;
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+      font-size: 0.98rem;
+    }
+    .tx-item:last-child {
+      margin-bottom: 0;
+    }
+    .tx-type {
+      font-weight: 500;
+    }
+    .tx-value {
+      font-weight: 700;
+      color: var(--primary);
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem 0.3rem;
+        max-width: 99vw;
+      }
+      .wallet-card, .swap-box {
+        padding: 1rem 0.4rem;
+      }
+      .swap-select {
+        flex: 0 0 105px;
+      }
+    }
+  </style>
+  <!-- Solana JavaScript SDK and Jupiter API -->
+  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.2/lib/index.iife.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.4.0/lib/index.iife.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Solana Meme Token Swap</h1>
+    <div id="walletSection" class="section">
+      <div id="walletCard" class="wallet-card" style="display:none;">
+        <span>Connected (Phantom):</span>
+        <div class="wallet-address" id="walletAddress"></div>
+        <div class="wallet-balance" id="walletBalance"></div>
+      </div>
+      <button id="connectWalletBtn" class="button">Connect Phantom Wallet</button>
+      <button id="disconnectWalletBtn" class="button secondary" style="display:none;">Disconnect</button>
+    </div>
 
+    <div id="errorMsg" class="error-msg"></div>
+    <div id="successMsg" class="success-msg"></div>
+
+    <div id="swapSection" class="section" style="display:none;">
+      <div class="swap-box">
+        <div class="swap-row">
+          <span class="swap-label">From</span>
+          <img id="fromTokenImg" class="swap-token-img" src="" alt="" style="display:none;">
+          <input id="swapFromAmount" class="swap-input" type="number" min="0" step="any" placeholder="Amount" />
+          <select id="swapFromToken" class="swap-select"></select>
+        </div>
+        <div class="swap-row">
+          <span class="swap-label">To</span>
+          <img id="toTokenImg" class="swap-token-img" src="" alt="" style="display:none;">
+          <input id="swapToAmount" class="swap-input" type="number" min="0" step="any" placeholder="Amount" readonly />
+          <select id="swapToToken" class="swap-select"></select>
+        </div>
+        <div class="slippage-row">
+          <span class="slippage-label">Slippage</span>
+          <input id="slippageInput" class="slippage-input" type="number" min="0.1" max="20" step="0.1" value="1" />%
+        </div>
+        <button id="swapBtn" class="button" style="margin-top:1.5rem;">Swap</button>
+      </div>
+    </div>
+
+    <div id="txHistory" class="tx-history" style="display:none;">
+      <div class="tx-title">Transaction History</div>
+      <ul class="tx-list" id="txList"></ul>
+    </div>
+  </div>
+  <script type="module">
+    // Meme tokens on Solana (add more as desired)
+    const SOLANA_MEME_TOKENS = [
+      {
+        symbol: "SOL",
+        name: "Solana",
+        mint: "So11111111111111111111111111111111111111112",
+        decimals: 9,
+        image: "https://cryptologos.cc/logos/solana-sol-logo.png"
+      },
+      {
+        symbol: "WIF",
+        name: "dogwifhat",
+        mint: "2oRZj1K8q6g7QpmS5jQSRtD1h41Tfq5gQJbA3g6vJwVn",
+        decimals: 8,
+        image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/2oRZj1K8q6g7QpmS5jQSRtD1h41Tfq5gQJbA3g6vJwVn/logo.png"
+      },
+      {
+        symbol: "BONK",
+        name: "Bonk",
+        mint: "DezX1xQ6ZhhXPb9D5e8C2J9pYc3i8c1a6h8VfmYbZ3Qh",
+        decimals: 5,
+        image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/DezX1xQ6ZhhXPb9D5e8C2J9pYc3i8c1a6h8VfmYbZ3Qh/logo.png"
+      },
+      {
+        symbol: "MEW",
+        name: "cat in a dogs world",
+        mint: "6cA7QVY6L9Dn7dEyEfrXzQK6pQ6TjA2R8fLJwNr1cCzN",
+        decimals: 6,
+        image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/6cA7QVY6L9Dn7dEyEfrXzQK6pQ6TjA2R8fLJwNr1cCzN/logo.png"
+      },
+      {
+        symbol: "SAMO",
+        name: "Samoyedcoin",
+        mint: "7xKX2W5ZfVbknk8V2yZ6pR6A2K1v8R4F7k4G7U7vS8g",
+        decimals: 9,
+        image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/7xKX2W5ZfVbknk8V2yZ6pR6A2K1v8R4F7k4G7U7vS8g/logo.png"
+      },
+      {
+        symbol: "POPCAT",
+        name: "Popcat",
+        mint: "8XQ8h4pT3X8A8sQp8t8o9R2w8S1H3rT9Z1kJ8h2B6R9r",
+        decimals: 6,
+        image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/8XQ8h4pT3X8A8sQp8t8o9R2w8S1H3rT9Z1kJ8h2B6R9r/logo.png"
+      },
+      {
+        symbol: "MYRO",
+        name: "Myro",
+        mint: "MYrVt4B8W5vX3gX8K9y2pJ3pB8d7G6zQ6q4r9v2xM2w",
+        decimals: 6,
+        image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/MYrVt4B8W5vX3gX8K9y2pJ3pB8d7G6zQ6q4r9v2xM2w/logo.png"
+      }
+      // Add more meme tokens here as needed
+    ];
+
+    // Jupiter Aggregator V6 API endpoint for quotes and swap routes
+    const JUPITER_API = "https://quote-api.jup.ag/v6";
+
+    // UI Elements
+    const connectWalletBtn = document.getElementById('connectWalletBtn');
+    const disconnectWalletBtn = document.getElementById('disconnectWalletBtn');
+    const walletCard = document.getElementById('walletCard');
+    const walletAddress = document.getElementById('walletAddress');
+    const walletBalance = document.getElementById('walletBalance');
+    const swapSection = document.getElementById('swapSection');
+    const swapFromAmount = document.getElementById('swapFromAmount');
+    const swapToAmount = document.getElementById('swapToAmount');
+    const swapFromToken = document.getElementById('swapFromToken');
+    const swapToToken = document.getElementById('swapToToken');
+    const swapBtn = document.getElementById('swapBtn');
+    const txHistory = document.getElementById('txHistory');
+    const txList = document.getElementById('txList');
+    const slippageInput = document.getElementById('slippageInput');
+    const errorMsg = document.getElementById('errorMsg');
+    const successMsg = document.getElementById('successMsg');
+    const fromTokenImg = document.getElementById('fromTokenImg');
+    const toTokenImg = document.getElementById('toTokenImg');
+
+    // State
+    let wallet = null;
+    let publicKey = null;
+    let connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl("mainnet-beta"));
+    let txs = [];
+
+    // Helpers
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.style.display = 'block';
+      setTimeout(() => errorMsg.style.display = 'none', 8000);
+    }
+    function showSuccess(msg) {
+      successMsg.textContent = msg;
+      successMsg.style.display = 'block';
+      setTimeout(() => successMsg.style.display = 'none', 6000);
+    }
+    function hideMsgs() {
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'none';
+    }
+
+    function populateTokenSelect(select, tokens) {
+      select.innerHTML = '';
+      tokens.forEach((token, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = token.symbol;
+        select.appendChild(opt);
+      });
+    }
+
+    function updateDisplayedTokenImages() {
+      const fromToken = SOLANA_MEME_TOKENS[swapFromToken.value];
+      const toToken = SOLANA_MEME_TOKENS[swapToToken.value];
+      if (fromToken && fromToken.image) {
+        fromTokenImg.src = fromToken.image;
+        fromTokenImg.alt = fromToken.symbol;
+        fromTokenImg.style.display = '';
+      } else {
+        fromTokenImg.style.display = 'none';
+      }
+      if (toToken && toToken.image) {
+        toTokenImg.src = toToken.image;
+        toTokenImg.alt = toToken.symbol;
+        toTokenImg.style.display = '';
+      } else {
+        toTokenImg.style.display = 'none';
+      }
+    }
+
+    async function updateWalletUI() {
+      try {
+        if (publicKey) {
+          walletCard.style.display = '';
+          walletAddress.textContent = publicKey.toBase58();
+          // Fetch balances (SOL + SPL meme tokens)
+          let balances = [];
+          // SOL
+          const solBal = await connection.getBalance(publicKey);
+          balances.push((solBal / 1e9).toFixed(4) + " SOL");
+          // SPL tokens
+          const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+            publicKey,
+            { programId: solanaWeb3.TokenInstructions.TOKEN_PROGRAM_ID }
+          );
+          for (const token of SOLANA_MEME_TOKENS) {
+            if (token.symbol === "SOL") continue;
+            const found = tokenAccounts.value.find(
+              acc => acc.account.data.parsed.info.mint === token.mint
+            );
+            if (found) {
+              const uiAmount = found.account.data.parsed.info.tokenAmount.uiAmount;
+              balances.push(`${uiAmount} ${token.symbol}`);
+            }
+          }
+          walletBalance.textContent = balances.join(" / ");
+          connectWalletBtn.style.display = 'none';
+          disconnectWalletBtn.style.display = '';
+          swapSection.style.display = '';
+          txHistory.style.display = '';
+        } else {
+          walletCard.style.display = 'none';
+          connectWalletBtn.style.display = '';
+          disconnectWalletBtn.style.display = 'none';
+          swapSection.style.display = 'none';
+          txHistory.style.display = 'none';
+        }
+      } catch (e) {
+        showError("Failed to update wallet: " + (e.message || e));
+      }
+    }
+
+    function renderTxHistory() {
+      txList.innerHTML = '';
+      if (txs.length === 0) {
+        txList.innerHTML = `<li class="tx-item">No transactions yet.</li>`;
+        return;
+      }
+      txs.forEach(tx => {
+        const li = document.createElement('li');
+        li.className = 'tx-item';
+        li.innerHTML = `
+          <span class="tx-type">${tx.type}</span>
+          <span class="tx-value"><a href="https://solscan.io/tx/${tx.hash}" target="_blank">${tx.value}</a></span>
+        `;
+        txList.appendChild(li);
+      });
+    }
+
+    // Jupiter Quote API
+    async function getSwapQuote(fromIdx, toIdx, amountUi) {
+      const fromToken = SOLANA_MEME_TOKENS[fromIdx];
+      const toToken = SOLANA_MEME_TOKENS[toIdx];
+      if (!fromToken || !toToken || fromToken.mint === toToken.mint) return null;
+      const amount = Math.floor(amountUi * (10 ** fromToken.decimals));
+      const url = `${JUPITER_API}/quote?inputMint=${fromToken.mint}&outputMint=${toToken.mint}&amount=${amount}&slippageBps=${Math.floor(Number(slippageInput.value)*100)}&onlyDirectRoutes=false`;
+      try {
+        const resp = await fetch(url);
+        if (!resp.ok) return null;
+        const data = await resp.json();
+        if (!data || !data.data || !data.data[0]) return null;
+        return data.data[0];
+      } catch (e) {
+        showError('Jupiter quote error: ' + (e.message || e));
+        return null;
+      }
+    }
+
+    async function updateSwapEstimate() {
+      hideMsgs();
+      const fromIdx = swapFromToken.value;
+      const toIdx = swapToToken.value;
+      const amountUi = Number(swapFromAmount.value);
+      if (fromIdx === toIdx || !amountUi || isNaN(amountUi) || amountUi <= 0) {
+        swapToAmount.value = '';
+        swapBtn.disabled = true;
+        return;
+      }
+      swapBtn.disabled = false;
+      swapToAmount.value = '...';
+      const route = await getSwapQuote(fromIdx, toIdx, amountUi);
+      if (!route) {
+        swapToAmount.value = '';
+        swapBtn.disabled = true;
+        showError("No route found or insufficient liquidity.");
+        return;
+      }
+      const toToken = SOLANA_MEME_TOKENS[toIdx];
+      swapToAmount.value = (route.outAmount / (10 ** toToken.decimals)).toPrecision(8);
+    }
+
+    function populateTokenSelects() {
+      populateTokenSelect(swapFromToken, SOLANA_MEME_TOKENS);
+      populateTokenSelect(swapToToken, SOLANA_MEME_TOKENS);
+      swapToToken.selectedIndex = 1;
+      updateDisplayedTokenImages();
+    }
+
+    // Phantom wallet connect/disconnect
+    connectWalletBtn.onclick = async () => {
+      hideMsgs();
+      if (!window.solana || !window.solana.isPhantom) {
+        showError("Phantom Wallet extension not found!");
+        return;
+      }
+      try {
+        const resp = await window.solana.connect();
+        wallet = window.solana;
+        publicKey = resp.publicKey;
+        await updateWalletUI();
+      } catch (e) {
+        showError("Wallet connection error: " + (e.message || e));
+      }
+    };
+
+    disconnectWalletBtn.onclick = () => {
+      publicKey = null;
+      wallet = null;
+      updateWalletUI();
+    };
+
+    swapFromToken.addEventListener('change', () => {
+      if (swapFromToken.value === swapToToken.value) {
+        swapToToken.selectedIndex = (Number(swapFromToken.value)+1)%SOLANA_MEME_TOKENS.length;
+      }
+      updateDisplayedTokenImages();
+      updateSwapEstimate();
+    });
+    swapToToken.addEventListener('change', () => {
+      if (swapToToken.value === swapFromToken.value) {
+        swapFromToken.selectedIndex = (Number(swapToToken.value)+1)%SOLANA_MEME_TOKENS.length;
+      }
+      updateDisplayedTokenImages();
+      updateSwapEstimate();
+    });
+    swapFromAmount.addEventListener('input', updateSwapEstimate);
+    slippageInput.addEventListener('input', () => {
+      if (Number(slippageInput.value) < 0.1) slippageInput.value = 0.1;
+      if (Number(slippageInput.value) > 20) slippageInput.value = 20;
+      updateSwapEstimate();
+    });
+
+    // Swap action (Jupiter Swap API v6)
+    swapBtn.onclick = async () => {
+      hideMsgs();
+      if (!wallet || !publicKey) {
+        showError("Please connect your Phantom wallet.");
+        return;
+      }
+      const fromIdx = swapFromToken.value;
+      const toIdx = swapToToken.value;
+      const fromToken = SOLANA_MEME_TOKENS[fromIdx];
+      const toToken = SOLANA_MEME_TOKENS[toIdx];
+      const amountUi = Number(swapFromAmount.value);
+      if (!fromToken || !toToken || fromToken.mint === toToken.mint || !amountUi || isNaN(amountUi) || amountUi <= 0) {
+        showError("Invalid swap request.");
+        return;
+      }
+      swapBtn.disabled = true;
+      swapBtn.textContent = "Swapping...";
+      // Get swap route/transaction
+      try {
+        const route = await getSwapQuote(fromIdx, toIdx, amountUi);
+        if (!route) {
+          showError("No swap route found.");
+          swapBtn.disabled = false;
+          swapBtn.textContent = "Swap";
+          return;
+        }
+        // Get Jupiter swap serialized transaction
+        const swapApiUrl = `${JUPITER_API}/swap`;
+        const payload = {
+          route: route,
+          userPublicKey: publicKey.toBase58(),
+          wrapUnwrapSOL: true // Jupiter can handle SOL wrapping
+        };
+        const swapResp = await fetch(swapApiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const swapData = await swapResp.json();
+        if (!swapData?.swapTransaction) {
+          showError("Failed to get swap transaction from Jupiter.");
+          swapBtn.disabled = false;
+          swapBtn.textContent = "Swap";
+          return;
+        }
+        // Sign and send transaction with Phantom
+        const 

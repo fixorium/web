@@ -9,17 +9,27 @@
   <!-- Solana JavaScript SDK and Jupiter API -->
   <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.2/lib/index.iife.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.4.0/lib/index.iife.min.js"></script>
+  <!-- MetaMask detection -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 </head>
 <body>
+  <!-- Fixorium Logo -->
+  <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 2rem;">
+    <img src="https://raw.githubusercontent.com/fixercoin/static-assets/main/fixorium-logo-350x500.png" alt="Fixorium Logo" width="175" height="250" style="display:block;"/>
+  </div>
+
   <div class="container">
     <h1>Solana Meme Token Swap</h1>
+    <div style="display:flex; gap:8px; margin-bottom:1rem;">
+      <button id="phantomBtn" class="button" style="flex:1;">Connect Phantom</button>
+      <button id="metamaskBtn" class="button secondary" style="flex:1;">Connect MetaMask</button>
+    </div>
     <div id="walletSection" class="section">
       <div id="walletCard" class="wallet-card" style="display:none;">
-        <span>Connected (Phantom):</span>
+        <span id="walletTypeLabel"></span>
         <div class="wallet-address" id="walletAddress"></div>
         <div class="wallet-balance" id="walletBalance"></div>
       </div>
-      <button id="connectWalletBtn" class="button">Connect Phantom Wallet</button>
       <button id="disconnectWalletBtn" class="button secondary" style="display:none;">Disconnect</button>
     </div>
 
@@ -52,9 +62,12 @@
       <div class="tx-title">Transaction History</div>
       <ul class="tx-list" id="txList"></ul>
     </div>
+    <div style="margin-top:2.5rem; text-align:center">
+      <span style="font-weight:700; font-size:1.2rem; color:#8257e6;">FIXERCOIN</span>
+    </div>
   </div>
   <script type="module">
-    // Meme tokens on Solana (add more as desired)
+    // Meme tokens on Solana
     const SOLANA_MEME_TOKENS = [
       {
         symbol: "SOL",
@@ -107,10 +120,25 @@
       }
     ];
 
+    // Add Fixercoin (example SPL token, update mint if needed)
+    SOLANA_MEME_TOKENS.push({
+      symbol: "FIXER",
+      name: "Fixercoin",
+      mint: "4w3kGzZ2ki2r6CwM5ZjiF9zv3B5r1xCw7f7dF9vF6x4x", // <--- Use your real mint!
+      decimals: 6,
+      image: "https://raw.githubusercontent.com/fixercoin/static-assets/main/fixercoin-logo.png"
+    });
+
+    // Jupiter Aggregator V6 API endpoint for quotes and swap routes
     const JUPITER_API = "https://quote-api.jup.ag/v6";
-    const connectWalletBtn = document.getElementById('connectWalletBtn');
+
+    // UI Elements
+    const phantomBtn = document.getElementById('phantomBtn');
+    const metamaskBtn = document.getElementById('metamaskBtn');
+    const connectWalletBtn = document.getElementById('connectWalletBtn'); // deprecated
     const disconnectWalletBtn = document.getElementById('disconnectWalletBtn');
     const walletCard = document.getElementById('walletCard');
+    const walletTypeLabel = document.getElementById('walletTypeLabel');
     const walletAddress = document.getElementById('walletAddress');
     const walletBalance = document.getElementById('walletBalance');
     const swapSection = document.getElementById('swapSection');
@@ -127,11 +155,16 @@
     const fromTokenImg = document.getElementById('fromTokenImg');
     const toTokenImg = document.getElementById('toTokenImg');
 
+    // State
     let wallet = null;
     let publicKey = null;
+    let walletType = null; // 'phantom' or 'metamask'
+    let ethProvider = null;
+    let ethAddress = null;
     let connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl("mainnet-beta"));
     let txs = [];
 
+    // Helper Functions
     function showError(msg) {
       errorMsg.textContent = msg;
       errorMsg.style.display = 'block';
@@ -175,8 +208,9 @@
     }
     async function updateWalletUI() {
       try {
-        if (publicKey) {
+        if (walletType === 'phantom' && publicKey) {
           walletCard.style.display = '';
+          walletTypeLabel.textContent = 'Connected (Phantom):';
           walletAddress.textContent = publicKey.toBase58();
           let balances = [];
           const solBal = await connection.getBalance(publicKey);
@@ -196,13 +230,19 @@
             }
           }
           walletBalance.textContent = balances.join(" / ");
-          connectWalletBtn.style.display = 'none';
           disconnectWalletBtn.style.display = '';
           swapSection.style.display = '';
           txHistory.style.display = '';
+        } else if (walletType === 'metamask' && ethAddress) {
+          walletCard.style.display = '';
+          walletTypeLabel.textContent = 'Connected (MetaMask):';
+          walletAddress.textContent = ethAddress;
+          walletBalance.textContent = '';
+          disconnectWalletBtn.style.display = '';
+          swapSection.style.display = 'none';
+          txHistory.style.display = 'none';
         } else {
           walletCard.style.display = 'none';
-          connectWalletBtn.style.display = '';
           disconnectWalletBtn.style.display = 'none';
           swapSection.style.display = 'none';
           txHistory.style.display = 'none';
@@ -246,6 +286,11 @@
     }
     async function updateSwapEstimate() {
       hideMsgs();
+      if (walletType !== 'phantom') {
+        swapToAmount.value = '';
+        swapBtn.disabled = true;
+        return;
+      }
       const fromIdx = swapFromToken.value;
       const toIdx = swapToToken.value;
       const amountUi = Number(swapFromAmount.value);
@@ -273,7 +318,7 @@
       updateDisplayedTokenImages();
     }
 
-    // Phantom wallet connect/disconnect (robust)
+    // Phantom connect
     async function connectPhantom() {
       hideMsgs();
       if (!window.solana || !window.solana.isPhantom) {
@@ -281,47 +326,73 @@
         return false;
       }
       try {
-        // Attempt eager connection first
-        const isConnected = await window.solana.connect({ onlyIfTrusted: true }).catch(() => false);
-        if (isConnected && window.solana.isConnected) {
-          wallet = window.solana;
-          publicKey = wallet.publicKey;
-          await updateWalletUI();
-          return true;
-        }
-        // Prompt user to connect
         const resp = await window.solana.connect();
+        walletType = 'phantom';
         wallet = window.solana;
         publicKey = resp.publicKey;
+        ethProvider = null;
+        ethAddress = null;
         await updateWalletUI();
+        await updateSwapEstimate();
         return true;
       } catch (e) {
         showError("Wallet connection error: " + (e.message || e));
         return false;
       }
     }
-    connectWalletBtn.onclick = connectPhantom;
+    phantomBtn.onclick = connectPhantom;
 
-    // Handle disconnect
+    // MetaMask connect
+    async function connectMetaMask() {
+      hideMsgs();
+      if (!window.ethereum || !window.ethereum.isMetaMask) {
+        showError("MetaMask extension not found! Install MetaMask to continue.");
+        return false;
+      }
+      try {
+        ethProvider = new ethers.providers.Web3Provider(window.ethereum, "any");
+        await ethProvider.send("eth_requestAccounts", []);
+        const signer = ethProvider.getSigner();
+        ethAddress = await signer.getAddress();
+        walletType = 'metamask';
+        wallet = null;
+        publicKey = null;
+        await updateWalletUI();
+        showSuccess("MetaMask connected! (Only Solana swaps supported in this DApp)");
+        return true;
+      } catch (e) {
+        showError("MetaMask connection error: " + (e.message || e));
+        return false;
+      }
+    }
+    metamaskBtn.onclick = connectMetaMask;
+
+    // Disconnect handler (works for both wallets)
     disconnectWalletBtn.onclick = () => {
-      if (window.solana && window.solana.isPhantom && window.solana.disconnect) {
+      if (walletType === 'phantom' && window.solana && window.solana.isPhantom && window.solana.disconnect) {
         window.solana.disconnect();
       }
-      publicKey = null;
       wallet = null;
+      publicKey = null;
+      ethProvider = null;
+      ethAddress = null;
+      walletType = null;
       updateWalletUI();
     };
 
-    // Auto update connection state if user connects/disconnects Phantom externally
+    // Phantom event listeners
     if (window.solana) {
       window.solana.on && window.solana.on('connect', async () => {
         publicKey = window.solana.publicKey;
         wallet = window.solana;
+        walletType = 'phantom';
         await updateWalletUI();
+        await updateSwapEstimate();
       });
       window.solana.on && window.solana.on('disconnect', async () => {
         publicKey = null;
         wallet = null;
+        walletType = null;
         await updateWalletUI();
       });
     }
@@ -347,10 +418,10 @@
       updateSwapEstimate();
     });
 
-    // Swap action (Jupiter Swap API v6)
+    // Swap action (Jupiter Swap API v6, only for Phantom/Solana)
     swapBtn.onclick = async () => {
       hideMsgs();
-      if (!wallet || !publicKey) {
+      if (walletType !== 'phantom' || !wallet || !publicKey) {
         showError("Please connect your Phantom wallet.");
         return;
       }
@@ -395,9 +466,7 @@
         // Sign and send transaction with Phantom
         const txn = swapData.swapTransaction;
         const recovered = new Uint8Array(atob(txn).split('').map(c => c.charCodeAt(0)));
-        // Send with Phantom
         const signed = await window.solana.signAndSendTransaction({
-          // web3.js expects a Transaction object, but Phantom extension can accept raw bytes as buffer
           message: recovered
         });
         txs.unshift({
@@ -426,4 +495,4 @@
     });
   </script>
 </body>
-</html>
+ </html>

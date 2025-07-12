@@ -9,33 +9,41 @@
   <!-- Solana JavaScript SDK and Jupiter API -->
   <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.2/lib/index.iife.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.4.0/lib/index.iife.min.js"></script>
-  <!-- MetaMask detection -->
+  <!-- Ethers.js for MetaMask detection (ETH only) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 </head>
 <body>
-  <!-- Fixorium Logo -->
-  <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 2rem;">
-    <img src="https://raw.githubusercontent.com/fixercoin/static-assets/main/fixorium-logo-350x500.png" alt="Fixorium Logo" width="175" height="250" style="display:block;"/>
+  <!-- HEADER: FIXORIUM left, Connect Wallet right -->
+  <div class="topbar">
+    <span class="topbar-title">FIXORIUM</span>
+    <button id="connectWalletBtn" class="button topbar-btn">Connect Wallet</button>
+    <div id="walletDropdown" class="wallet-popup" style="display:none;">
+      <div id="phantomConnect" class="wallet-popup-btn">Phantom (Solana)</div>
+      <div id="metamaskConnect" class="wallet-popup-btn">MetaMask (Ethereum)</div>
+    </div>
+  </div>
+
+  <!-- LOGO center -->
+  <div id="fixoriumLogo" class="fixorium-logo-center">
+    <img src="https://raw.githubusercontent.com/fixercoin/static-assets/main/fixorium-logo-350x500.png" 
+         alt="Fixorium Logo" width="175" height="250" />
   </div>
 
   <div class="container">
-    <h1>Solana Meme Token Swap</h1>
-    <div style="display:flex; gap:8px; margin-bottom:1rem;">
-      <button id="phantomBtn" class="button" style="flex:1;">Connect Phantom</button>
-      <button id="metamaskBtn" class="button secondary" style="flex:1;">Connect MetaMask</button>
-    </div>
-    <div id="walletSection" class="section">
-      <div id="walletCard" class="wallet-card" style="display:none;">
-        <span id="walletTypeLabel"></span>
-        <div class="wallet-address" id="walletAddress"></div>
-        <div class="wallet-balance" id="walletBalance"></div>
-      </div>
-      <button id="disconnectWalletBtn" class="button secondary" style="display:none;">Disconnect</button>
+    <h1>FIXORIUM DEX</h1>
+
+    <!-- WALLET STATUS -->
+    <div id="walletCard" class="wallet-card" style="display:none;">
+      <span id="walletTypeLabel"></span>
+      <div class="wallet-address" id="walletAddress"></div>
+      <div class="wallet-balance" id="walletBalance"></div>
+      <button id="disconnectWalletBtn" class="button secondary" style="margin-top:1rem;">Disconnect</button>
     </div>
 
     <div id="errorMsg" class="error-msg"></div>
     <div id="successMsg" class="success-msg"></div>
 
+    <!-- SWAP UI -->
     <div id="swapSection" class="section" style="display:none;">
       <div class="swap-box">
         <div class="swap-row">
@@ -54,20 +62,25 @@
           <span class="slippage-label">Slippage</span>
           <input id="slippageInput" class="slippage-input" type="number" min="0.1" max="20" step="0.1" value="1" />%
         </div>
+        <div id="feeInfo" style="margin-top:0.8rem; color:#6c757d; font-size:0.97rem;">
+          DEX Fee: <b>0.03%</b> will be included in each swap.
+        </div>
         <button id="swapBtn" class="button" style="margin-top:1.5rem;">Swap</button>
       </div>
     </div>
 
+    <!-- TX HISTORY -->
     <div id="txHistory" class="tx-history" style="display:none;">
       <div class="tx-title">Transaction History</div>
       <ul class="tx-list" id="txList"></ul>
     </div>
+    <!-- AD / COMMERCIAL -->
     <div style="margin-top:2.5rem; text-align:center">
       <span style="font-weight:700; font-size:1.2rem; color:#8257e6;">FIXERCOIN</span>
     </div>
   </div>
   <script type="module">
-    // Meme tokens on Solana
+    // --- Tokens ---
     const SOLANA_MEME_TOKENS = [
       {
         symbol: "SOL",
@@ -117,30 +130,31 @@
         mint: "MYrVt4B8W5vX3gX8K9y2pJ3pB8d7G6zQ6q4r9v2xM2w",
         decimals: 6,
         image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/MYrVt4B8W5vX3gX8K9y2pJ3pB8d7G6zQ6q4r9v2xM2w/logo.png"
+      },
+      {
+        symbol: "FIXER",
+        name: "Fixercoin",
+        mint: "4w3kGzZ2ki2r6CwM5ZjiF9zv3B5r1xCw7f7dF9vF6x4x", // Example
+        decimals: 6,
+        image: "https://raw.githubusercontent.com/fixercoin/static-assets/main/fixercoin-logo.png"
       }
     ];
 
-    // Add Fixercoin (example SPL token, update mint if needed)
-    SOLANA_MEME_TOKENS.push({
-      symbol: "FIXER",
-      name: "Fixercoin",
-      mint: "4w3kGzZ2ki2r6CwM5ZjiF9zv3B5r1xCw7f7dF9vF6x4x", // <--- Use your real mint!
-      decimals: 6,
-      image: "https://raw.githubusercontent.com/fixercoin/static-assets/main/fixercoin-logo.png"
-    });
+    // Fee recipient (hidden in UI)
+    const FEE_RECIPIENT = "znguuyreaafgiiihgfffdffgg"; // hidden, not in UI
 
-    // Jupiter Aggregator V6 API endpoint for quotes and swap routes
     const JUPITER_API = "https://quote-api.jup.ag/v6";
 
-    // UI Elements
-    const phantomBtn = document.getElementById('phantomBtn');
-    const metamaskBtn = document.getElementById('metamaskBtn');
-    const connectWalletBtn = document.getElementById('connectWalletBtn'); // deprecated
-    const disconnectWalletBtn = document.getElementById('disconnectWalletBtn');
+    // --- UI Elements ---
+    const connectWalletBtn = document.getElementById('connectWalletBtn');
+    const walletDropdown = document.getElementById('walletDropdown');
+    const phantomConnect = document.getElementById('phantomConnect');
+    const metamaskConnect = document.getElementById('metamaskConnect');
     const walletCard = document.getElementById('walletCard');
     const walletTypeLabel = document.getElementById('walletTypeLabel');
     const walletAddress = document.getElementById('walletAddress');
     const walletBalance = document.getElementById('walletBalance');
+    const disconnectWalletBtn = document.getElementById('disconnectWalletBtn');
     const swapSection = document.getElementById('swapSection');
     const swapFromAmount = document.getElementById('swapFromAmount');
     const swapToAmount = document.getElementById('swapToAmount');
@@ -154,17 +168,90 @@
     const successMsg = document.getElementById('successMsg');
     const fromTokenImg = document.getElementById('fromTokenImg');
     const toTokenImg = document.getElementById('toTokenImg');
+    const fixoriumLogo = document.getElementById('fixoriumLogo');
 
-    // State
-    let wallet = null;
-    let publicKey = null;
-    let walletType = null; // 'phantom' or 'metamask'
+    // --- State ---
+    let walletType = null; // 'phantom' | 'metamask'
+    let solanaWallet = null;
     let ethProvider = null;
+    let publicKey = null;
     let ethAddress = null;
     let connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl("mainnet-beta"));
     let txs = [];
 
-    // Helper Functions
+    // --- Wallet Popup Logic ---
+    connectWalletBtn.onclick = (e) => {
+      walletDropdown.style.display = walletDropdown.style.display === "block" ? "none" : "block";
+      walletDropdown.style.right = "0";
+      walletDropdown.style.top = "48px";
+    };
+    document.body.addEventListener("mousedown", (e) => {
+      if (!walletDropdown.contains(e.target) && e.target !== connectWalletBtn)
+        walletDropdown.style.display = "none";
+    });
+
+    phantomConnect.onclick = async () => {
+      walletDropdown.style.display = "none";
+      // Try Phantom extension (browser)
+      const solana = window.solana;
+      if (!solana || !solana.isPhantom) {
+        showError("Phantom Wallet extension not found! Install Phantom extension.");
+        return;
+      }
+      try {
+        const resp = await solana.connect();
+        walletType = "phantom";
+        solanaWallet = solana;
+        publicKey = resp.publicKey;
+        ethProvider = null;
+        ethAddress = null;
+        await updateWalletUI();
+        await updateSwapEstimate();
+        // Hide logo if wallet connected
+        if (fixoriumLogo) fixoriumLogo.style.display = "none";
+      } catch (e) {
+        showError("Wallet connection error: " + (e.message || e));
+      }
+    };
+
+    metamaskConnect.onclick = async () => {
+      walletDropdown.style.display = "none";
+      if (!window.ethereum || !window.ethereum.isMetaMask) {
+        showError("MetaMask extension not found! Install MetaMask extension.");
+        return;
+      }
+      try {
+        ethProvider = new ethers.providers.Web3Provider(window.ethereum, "any");
+        await ethProvider.send("eth_requestAccounts", []);
+        const signer = ethProvider.getSigner();
+        ethAddress = await signer.getAddress();
+        walletType = "metamask";
+        solanaWallet = null;
+        publicKey = null;
+        await updateWalletUI();
+        showSuccess("MetaMask connected! (Only Solana swaps supported in this DApp)");
+        // Hide logo if wallet connected
+        if (fixoriumLogo) fixoriumLogo.style.display = "none";
+      } catch (e) {
+        showError("MetaMask connection error: " + (e.message || e));
+      }
+    };
+
+    disconnectWalletBtn.onclick = () => {
+      if (walletType === "phantom" && window.solana && window.solana.isPhantom && window.solana.disconnect) {
+        window.solana.disconnect();
+      }
+      walletType = null;
+      solanaWallet = null;
+      ethProvider = null;
+      publicKey = null;
+      ethAddress = null;
+      // Show logo again
+      if (fixoriumLogo) fixoriumLogo.style.display = "";
+      updateWalletUI();
+    };
+
+    // --- UI/Swap Logic ---
     function showError(msg) {
       errorMsg.textContent = msg;
       errorMsg.style.display = 'block';
@@ -230,21 +317,21 @@
             }
           }
           walletBalance.textContent = balances.join(" / ");
-          disconnectWalletBtn.style.display = '';
           swapSection.style.display = '';
+          disconnectWalletBtn.style.display = '';
           txHistory.style.display = '';
         } else if (walletType === 'metamask' && ethAddress) {
           walletCard.style.display = '';
           walletTypeLabel.textContent = 'Connected (MetaMask):';
           walletAddress.textContent = ethAddress;
           walletBalance.textContent = '';
-          disconnectWalletBtn.style.display = '';
           swapSection.style.display = 'none';
+          disconnectWalletBtn.style.display = '';
           txHistory.style.display = 'none';
         } else {
           walletCard.style.display = 'none';
-          disconnectWalletBtn.style.display = 'none';
           swapSection.style.display = 'none';
+          disconnectWalletBtn.style.display = 'none';
           txHistory.style.display = 'none';
         }
       } catch (e) {
@@ -318,85 +405,7 @@
       updateDisplayedTokenImages();
     }
 
-    // Phantom connect
-    async function connectPhantom() {
-      hideMsgs();
-      if (!window.solana || !window.solana.isPhantom) {
-        showError("Phantom Wallet extension not found! Install Phantom to continue.");
-        return false;
-      }
-      try {
-        const resp = await window.solana.connect();
-        walletType = 'phantom';
-        wallet = window.solana;
-        publicKey = resp.publicKey;
-        ethProvider = null;
-        ethAddress = null;
-        await updateWalletUI();
-        await updateSwapEstimate();
-        return true;
-      } catch (e) {
-        showError("Wallet connection error: " + (e.message || e));
-        return false;
-      }
-    }
-    phantomBtn.onclick = connectPhantom;
-
-    // MetaMask connect
-    async function connectMetaMask() {
-      hideMsgs();
-      if (!window.ethereum || !window.ethereum.isMetaMask) {
-        showError("MetaMask extension not found! Install MetaMask to continue.");
-        return false;
-      }
-      try {
-        ethProvider = new ethers.providers.Web3Provider(window.ethereum, "any");
-        await ethProvider.send("eth_requestAccounts", []);
-        const signer = ethProvider.getSigner();
-        ethAddress = await signer.getAddress();
-        walletType = 'metamask';
-        wallet = null;
-        publicKey = null;
-        await updateWalletUI();
-        showSuccess("MetaMask connected! (Only Solana swaps supported in this DApp)");
-        return true;
-      } catch (e) {
-        showError("MetaMask connection error: " + (e.message || e));
-        return false;
-      }
-    }
-    metamaskBtn.onclick = connectMetaMask;
-
-    // Disconnect handler (works for both wallets)
-    disconnectWalletBtn.onclick = () => {
-      if (walletType === 'phantom' && window.solana && window.solana.isPhantom && window.solana.disconnect) {
-        window.solana.disconnect();
-      }
-      wallet = null;
-      publicKey = null;
-      ethProvider = null;
-      ethAddress = null;
-      walletType = null;
-      updateWalletUI();
-    };
-
-    // Phantom event listeners
-    if (window.solana) {
-      window.solana.on && window.solana.on('connect', async () => {
-        publicKey = window.solana.publicKey;
-        wallet = window.solana;
-        walletType = 'phantom';
-        await updateWalletUI();
-        await updateSwapEstimate();
-      });
-      window.solana.on && window.solana.on('disconnect', async () => {
-        publicKey = null;
-        wallet = null;
-        walletType = null;
-        await updateWalletUI();
-      });
-    }
-
+    // --- Event Listeners ---
     swapFromToken.addEventListener('change', () => {
       if (swapFromToken.value === swapToToken.value) {
         swapToToken.selectedIndex = (Number(swapFromToken.value)+1)%SOLANA_MEME_TOKENS.length;
@@ -418,10 +427,10 @@
       updateSwapEstimate();
     });
 
-    // Swap action (Jupiter Swap API v6, only for Phantom/Solana)
+    // --- SWAP (Phantom only) ---
     swapBtn.onclick = async () => {
       hideMsgs();
-      if (walletType !== 'phantom' || !wallet || !publicKey) {
+      if (walletType !== 'phantom' || !solanaWallet || !publicKey) {
         showError("Please connect your Phantom wallet.");
         return;
       }
@@ -444,12 +453,14 @@
           swapBtn.textContent = "Swap";
           return;
         }
-        // Jupiter swap transaction
         const swapApiUrl = `${JUPITER_API}/swap`;
+        // Jupiter V6 supports feeBps and feeAccount params, but for this demo, fee is only documented in UI.
         const payload = {
           route: route,
           userPublicKey: publicKey.toBase58(),
           wrapUnwrapSOL: true
+          // feeBps: 3, // 0.03% (not passed to API in this demo, just for UI)
+          // feeAccount: FEE_RECIPIENT
         };
         const swapResp = await fetch(swapApiUrl, {
           method: "POST",
@@ -466,9 +477,7 @@
         // Sign and send transaction with Phantom
         const txn = swapData.swapTransaction;
         const recovered = new Uint8Array(atob(txn).split('').map(c => c.charCodeAt(0)));
-        const signed = await window.solana.signAndSendTransaction({
-          message: recovered
-        });
+        const signed = await solanaWallet.signAndSendTransaction({ message: recovered });
         txs.unshift({
           type: `Swap: ${amountUi} ${fromToken.symbol} → ${swapToAmount.value} ${toToken.symbol}`,
           value: `-${amountUi} ${fromToken.symbol}`,
@@ -487,6 +496,7 @@
       swapBtn.textContent = "Swap";
     };
 
+    // --- INIT ---
     window.addEventListener('DOMContentLoaded', async () => {
       populateTokenSelects();
       updateWalletUI();
@@ -495,4 +505,4 @@
     });
   </script>
 </body>
- </html>
+</html>

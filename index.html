@@ -17,10 +17,6 @@
   <div class="topbar">
     <span class="topbar-title">FIXORIUM</span>
     <button id="connectWalletBtn" class="button topbar-btn">Connect Wallet</button>
-    <div id="walletDropdown" class="wallet-popup" style="display:none;">
-      <div id="phantomConnect" class="wallet-popup-btn">Phantom (Solana)</div>
-      <div id="metamaskConnect" class="wallet-popup-btn">MetaMask (Ethereum)</div>
-    </div>
   </div>
 
   <!-- LOGO center -->
@@ -30,7 +26,7 @@
   </div>
 
   <div class="container">
-    <h1>FIXORIUM DEX</h1>
+    <h1>Solana Meme Token Swap</h1>
 
     <!-- WALLET STATUS -->
     <div id="walletCard" class="wallet-card" style="display:none;">
@@ -77,6 +73,15 @@
     <!-- AD / COMMERCIAL -->
     <div style="margin-top:2.5rem; text-align:center">
       <span style="font-weight:700; font-size:1.2rem; color:#8257e6;">FIXERCOIN</span>
+    </div>
+  </div>
+  <!-- Wallet selection modal (not popup dropdown) -->
+  <div id="walletModal" class="wallet-modal" style="display:none;">
+    <div class="wallet-modal-content">
+      <div style="font-size:1.05rem; font-weight:600; margin-bottom:1.3rem;">Connect Wallet</div>
+      <button id="phantomConnect" class="button" style="margin-bottom:0.7rem;">Phantom (Solana)</button>
+      <button id="metamaskConnect" class="button secondary">MetaMask (Ethereum)</button>
+      <button id="closeWalletModal" class="button" style="margin-top:1.1rem; background:#eee; color:#333;">Cancel</button>
     </div>
   </div>
   <script type="module">
@@ -147,9 +152,10 @@
 
     // --- UI Elements ---
     const connectWalletBtn = document.getElementById('connectWalletBtn');
-    const walletDropdown = document.getElementById('walletDropdown');
+    const walletModal = document.getElementById('walletModal');
     const phantomConnect = document.getElementById('phantomConnect');
     const metamaskConnect = document.getElementById('metamaskConnect');
+    const closeWalletModal = document.getElementById('closeWalletModal');
     const walletCard = document.getElementById('walletCard');
     const walletTypeLabel = document.getElementById('walletTypeLabel');
     const walletAddress = document.getElementById('walletAddress');
@@ -179,19 +185,24 @@
     let connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl("mainnet-beta"));
     let txs = [];
 
-    // --- Wallet Popup Logic ---
+    // --- Wallet Modal Logic (modal, not popup dropdown) ---
     connectWalletBtn.onclick = (e) => {
-      walletDropdown.style.display = walletDropdown.style.display === "block" ? "none" : "block";
-      walletDropdown.style.right = "0";
-      walletDropdown.style.top = "48px";
+      walletModal.style.display = "flex";
     };
-    document.body.addEventListener("mousedown", (e) => {
-      if (!walletDropdown.contains(e.target) && e.target !== connectWalletBtn)
-        walletDropdown.style.display = "none";
+    closeWalletModal.onclick = () => {
+      walletModal.style.display = "none";
+    };
+    window.addEventListener('keydown', (e) => {
+      if (e.key === "Escape") walletModal.style.display = "none";
+    });
+    window.addEventListener('mousedown', (e) => {
+      if (walletModal.style.display === "flex" && !e.target.closest('.wallet-modal-content') && e.target !== connectWalletBtn) {
+        walletModal.style.display = "none";
+      }
     });
 
     phantomConnect.onclick = async () => {
-      walletDropdown.style.display = "none";
+      walletModal.style.display = "none";
       // Try Phantom extension (browser)
       const solana = window.solana;
       if (!solana || !solana.isPhantom) {
@@ -215,7 +226,7 @@
     };
 
     metamaskConnect.onclick = async () => {
-      walletDropdown.style.display = "none";
+      walletModal.style.display = "none";
       if (!window.ethereum || !window.ethereum.isMetaMask) {
         showError("MetaMask extension not found! Install MetaMask extension.");
         return;
@@ -246,7 +257,6 @@
       ethProvider = null;
       publicKey = null;
       ethAddress = null;
-      // Show logo again
       if (fixoriumLogo) fixoriumLogo.style.display = "";
       updateWalletUI();
     };
@@ -459,8 +469,6 @@
           route: route,
           userPublicKey: publicKey.toBase58(),
           wrapUnwrapSOL: true
-          // feeBps: 3, // 0.03% (not passed to API in this demo, just for UI)
-          // feeAccount: FEE_RECIPIENT
         };
         const swapResp = await fetch(swapApiUrl, {
           method: "POST",
@@ -504,5 +512,42 @@
       await updateSwapEstimate();
     });
   </script>
+  <style>
+    /* Wallet modal styles */
+    .wallet-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0; right:0; bottom:0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.18);
+      align-items: center;
+      justify-content: center;
+    }
+    .wallet-modal-content {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 32px rgba(80,80,100,0.11);
+      padding: 2rem 1.5rem 1.5rem 1.5rem;
+      min-width: 250px;
+      min-height: 190px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .wallet-modal button {
+      max-width: 220px;
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+      font-size: 1rem;
+    }
+    @media (max-width: 600px) {
+      .wallet-modal-content {
+        min-width: 165px;
+        padding: 1rem 0.5rem 1rem 0.5rem;
+      }
+    }
+  </style>
 </body>
 </html>

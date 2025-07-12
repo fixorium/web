@@ -112,7 +112,7 @@
           currentProvider = 'MetaMask';
           enableSwapForm(true);
         } catch (error) {
-          alert('User has denied wallet connection');
+          console.error('Wallet connection error:', error);
         }
       } else {
         alert('MetaMask is not installed.');
@@ -135,7 +135,7 @@
           currentProvider = 'Phantom';
           enableSwapForm(false); // Solana swap logic not implemented here
         } catch (e) {
-          alert('User has denied wallet connection');
+          console.error('Wallet connection error:', e);
         }
       } else {
         // Phantom not installed, show QR code for mobile connect
@@ -167,7 +167,7 @@
           currentProvider = 'Trust';
           enableSwapForm(true);
         } catch (error) {
-          alert('User has denied wallet connection');
+          console.error('Wallet connection error:', error);
         }
       } else {
         alert('Trust Wallet is not installed.');
@@ -217,7 +217,7 @@
           disconnectWallet();
         });
       } catch (err) {
-        alert('User has denied wallet connection');
+        console.error('Wallet connection error:', err);
       }
     }
 
@@ -373,5 +373,5 @@
       return `https://api.1inch.dev/swap/v5.2/${chainId}`;
     }
   </script>
-</body>
-         </html>
+ </body>
+ 

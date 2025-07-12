@@ -1,4 +1,4 @@
-:root {
+ :root {
   --primary: #9945FF;
   --accent: #19FB9B;
   --bg: #f8f9fa;
@@ -13,7 +13,7 @@
 }
 
 html, body {
-  font-size: 13px !important; /* Small font globally */
+  font-size: 13px !important;
   background: var(--bg);
   font-family: "Inter", "Segoe UI", Arial, sans-serif;
   color: var(--text);
@@ -29,7 +29,7 @@ html, body {
   background: var(--box);
   box-shadow: var(--shadow);
   padding: 0.2rem 1.1rem 0.2rem 1.1rem;
-  min-height: 40px; /* Smaller height */
+  min-height: 40px;
   z-index: 10;
   font-size: 14px;
 }
@@ -75,7 +75,6 @@ html, body {
   display: none;
   font-size: 13px;
 }
-
 .wallet-popup-btn {
   cursor: pointer;
   padding: 0.55rem 1rem;
@@ -89,6 +88,38 @@ html, body {
 }
 .wallet-popup-btn:hover {
   background: var(--bg);
+}
+
+.wallet-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0; right:0; bottom:0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.18);
+  align-items: center;
+  justify-content: center;
+}
+.wallet-modal[style*="flex"], .wallet-modal.open {
+  display: flex !important;
+}
+.wallet-modal-content {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 32px rgba(80,80,100,0.11);
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  min-width: 250px;
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.wallet-modal button {
+  max-width: 220px;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  font-size: 1rem;
 }
 
 .fixorium-logo-center {
@@ -322,4 +353,4 @@ input:focus, select:focus {
     width: 120px;
     height: 180px;
   }
- }
+}

@@ -9,9 +9,9 @@
   <style>
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(135deg, #c7a16b 0%, #3c1e06 100%);
+      background-color: white;
       margin: 0;
-      color: #f9f6f1;
+      color: #3c1e06;
     }
     .header {
       display: flex;
@@ -231,10 +231,9 @@
   <div class="popup-bg" id="walletPopupBg">
     <div class="popup" id="walletPopup">
       <div style="font-weight:bold; font-size:1.07em; margin-bottom:13px;">Select Wallet</div>
-      <div id="walletList"></div>
-      <button class="wallet-popup-btn" id="walletConnectBtn">WalletConnect (Mobile Wallets)</button>
-      <button class="wallet-popup-btn" id="coinbaseWalletBtn">Coinbase Wallet (Desktop/Mobile)</button>
-      <button class="wallet-popup-btn" id="keystoneWalletBtn">Keystone Wallet (QR Hardware)</button>
+      <button class="wallet-popup-btn" id="metamaskBtn">MetaMask</button>
+      <button class="wallet-popup-btn" id="phantomBtn">Phantom Wallet</button>
+      <button class="wallet-popup-btn" id="trustBtn">Trust Wallet</button>
       <button class="wallet-popup-btn" id="popupClose">Cancel</button>
     </div>
   </div>
@@ -301,4 +300,4 @@
     document.getElementById('trustBtn').addEventListener('click', connectTrustWallet);
   </script>
 </body>
-  </html>
+</html>

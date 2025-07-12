@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -132,12 +132,7 @@
     .fixorium-logo-box {text-align:center; margin-top:20px;}
     .fixorium-logo-img {width:100px; height:100px; object-fit:contain; margin-bottom:10px;}
     .fixorium-logo-text {font-size:1.8em; font-weight:bold; color:#ffe2b0; letter-spacing:2px;}
-    .tokens-table {width:100%; border-collapse:collapse; margin-top:10px;}
-    .tokens-table th, .tokens-table td {padding:5px; border-bottom:1px solid #a66c18; font-size:0.9em;}
-    .tokens-table th {background:#a66c18; color:#ffe2b0;}
-    .tokens-table td.token-logo img {width:20px; height:20px;}
     .network-select {width:100%;padding:8px; border-radius:5px; border:1px solid #a66c18;margin-bottom:10px;font-size:0.9em;background:#3c1e06;color:#ffe2b0;}
-    .tokens-table tr:hover {background:#a66c18;}
     .custom-brand-bar {
       width:100%;
       background:linear-gradient(90deg,#7c4d03,#3c1e06);
@@ -201,25 +196,14 @@
       </select>
       <label for="amountInput">Amount to Swap</label>
       <input id="amountInput" type="number" min="0" step="any" placeholder="e.g. 1.5"/>
-      <label for="fromTokenSelect">From Token</label>
-      <select id="fromTokenSelect"></select>
-      <label for="toTokenSelect">To Token</label>
-      <select id="toTokenSelect"></select>
+      <label for="fromTokenInput">From Token (name or contract address)</label>
+      <input id="fromTokenInput" type="text" placeholder="e.g. USDT or 0xdAC17F958D2ee523a2206206994597C13D831ec7"/>
+      <label for="toTokenInput">To Token (name or contract address)</label>
+      <input id="toTokenInput" type="text" placeholder="e.g. USDC or 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"/>
       <div class="fee-note"><b>0.03% swap charge apply</b></div>
       <button id="swapBtn" class="swap-btn">Swap</button>
       <div id="statusBox" class="status info" style="display:none"></div>
       <hr style="margin:20px 0;border:0;border-top:1.5px dashed #dbeafe;">
-      <div class="section-title" style="margin-bottom:5px;">Top Market Tokens</div>
-      <table class="tokens-table" id="tokensTable">
-        <thead>
-          <tr>
-            <th>Logo</th>
-            <th>Symbol</th>
-            <th>Name</th>
-          </tr>
-        </thead>
-        <tbody id="tokensTableBody"></tbody>
-      </table>
     </div>
   </div>
   <div class="ad-section center">
@@ -321,6 +305,32 @@
     document.getElementById('phantomBtn').addEventListener('click', connectPhantomWallet);
     document.getElementById('trustBtn').addEventListener('click', connectTrustWallet);
     document.getElementById('disconnectWalletBtn').addEventListener('click', disconnectWallet);
+
+    // DEX swap form logic (stub for actual swap logic)
+    document.getElementById('swapBtn').addEventListener('click', async () => {
+      const statusBox = document.getElementById('statusBox');
+      statusBox.style.display = 'block';
+      statusBox.className = 'status info';
+      statusBox.textContent = 'Checking token data and preparing swap (demo only)...';
+
+      // Get user input
+      const network = document.getElementById('networkSelect').value;
+      const fromToken = document.getElementById('fromTokenInput').value.trim();
+      const toToken = document.getElementById('toTokenInput').value.trim();
+      const amount = document.getElementById('amountInput').value.trim();
+
+      if (!fromToken || !toToken || !amount || parseFloat(amount) <= 0) {
+        statusBox.className = 'status error';
+        statusBox.textContent = 'Please fill out all fields with valid values.';
+        return;
+      }
+
+      // For demo, just show the swap details (replace this with actual contract interaction)
+      setTimeout(() => {
+        statusBox.className = 'status success';
+        statusBox.textContent = `Swap prepared for ${amount} of "${fromToken}" to "${toToken}" on network ${network}. (Demo only)`;
+      }, 1000);
+    });
   </script>
 </body>
-</html>
+ </html>

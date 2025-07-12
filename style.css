@@ -37,10 +37,10 @@
 }
 
 .wallet-address {
-  color: #c0c0c0;
+  color: black;
   font-size: 1em;
   font-weight: 500;
-  background: #563a19;
+  background: white;
   padding: 6px 14px;
   border-radius: 7px;
   margin-left: 12px;
@@ -49,7 +49,7 @@
 
 .connect-btn {
   background: linear-gradient(90deg, #a66c18, #3c1e06);
-  color: #c0c0c0;
+  color: black;
   border: none;
   border-radius: 5px;
   font-size: 1em;
@@ -67,7 +67,7 @@
   width: 100%;
   max-width: 520px;
   margin: 30px auto 0 auto;
-  background: #4a2d09;
+  background: white;
   border-radius: 14px;
   box-shadow: 0 2px 16px #7c4d0388;
   padding: 32px 22px 22px 22px;
@@ -111,7 +111,7 @@ input:focus, select:focus {
 
 button.swap-btn {
   background: linear-gradient(90deg, #a66c18, #3c1e06);
-  color: #c0c0c0;
+  color: black;
   border: none;
   font-weight: 600;
   cursor: pointer;

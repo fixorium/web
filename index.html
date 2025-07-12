@@ -388,7 +388,7 @@ button.swap-btn:disabled {
           currentProvider = 'MetaMask';
           enableSwapForm(true);
         } catch (error) {
-          alert('User denied MetaMask connection');
+          alert('User denied connection to MetaMask.');
         }
       } else {
         alert('MetaMask is not installed.');
@@ -443,7 +443,7 @@ button.swap-btn:disabled {
           currentProvider = 'Trust';
           enableSwapForm(true);
         } catch (error) {
-          alert('User denied Trust Wallet connection');
+          alert('User denied connection to Trust Wallet.');
         }
       } else {
         alert('Trust Wallet is not installed.');
@@ -584,66 +584,4 @@ button.swap-btn:disabled {
             const approveUrl = `${apiBase}/approve/transaction?tokenAddress=${fromTokenAddr}&amount=${amountWei}`;
             const approveRes = await fetch(approveUrl);
             const approveData = await approveRes.json();
-            await web3.eth.sendTransaction({
-              from: approveData.from,
-              to: approveData.to,
-              data: approveData.data,
-              value: approveData.value || '0x0'
-            });
-          }
-        }
-
-        // Get swap data from 1inch API
-        statusBox.textContent = 'Please confirm the transaction in your wallet...';
-        const swapUrl = `${apiBase}/swap?fromTokenAddress=${fromTokenAddr}&toTokenAddress=${toTokenAddr}&amount=${amountWei}&fromAddress=${currentAccount}&slippage=1`;
-        const swapRes = await fetch(swapUrl);
-        if (!swapRes.ok) throw new Error('Swap API request failed');
-        const swapData = await swapRes.json();
-
-        // Send swap tx using web3
-        const txParams = {
-          from: swapData.tx.from,
-          to: swapData.tx.to,
-          data: swapData.tx.data,
-          value: swapData.tx.value || '0x0',
-          gas: swapData.tx.gas || undefined,
-        };
-        const txHash = await web3.eth.sendTransaction(txParams);
-        statusBox.className = 'status success';
-        statusBox.textContent = `Swap successful! Tx Hash: ${txHash.transactionHash || txHash}`;
-      } catch (e) {
-        statusBox.className = 'status error';
-        statusBox.textContent = 'Swap failed: ' + (e.message || e);
-      }
-    });
-
-    // Helper: Get token address by symbol using 1inch token list (main tokens only)
-    async function getTokenAddress(symbol, chainId) {
-      try {
-        const apiBase = get1inchApiBase(chainId);
-        const tokensRes = await fetch(`${apiBase}/tokens`);
-        const tokens = await tokensRes.json();
-        const tokenObj = Object.values(tokens.tokens).find(t => t.symbol.toUpperCase() === symbol.toUpperCase());
-        return tokenObj?.address || null;
-      } catch (e) {
-        return null;
-      }
-    }
-
-    // Helper: get decimals for a token
-    async function getTokenDecimals(tokenAddress) {
-      if (tokenAddress === '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') return 18;
-      const erc20ABI = [
-        { "constant": true, "inputs": [], "name": "decimals", "outputs": [{ "name": "", "type": "uint8" }], "type": "function" }
-      ];
-      const tokenContract = new web3.eth.Contract(erc20ABI, tokenAddress);
-      return await tokenContract.methods.decimals().call();
-    }
-
-    // Helper: get 1inch API base url per chain
-    function get1inchApiBase(chainId) {
-      return `https://api.1inch.dev/swap/v5.2/${chainId}`;
-    }
-  </script>
-</body>
-  </html>
+            await web3.eth.sendTr

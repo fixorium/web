@@ -6,11 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="https://raw.githubusercontent.com/fixorium/assets/main/logo.png">
   <meta name="theme-color" content="#7c4d03">
-  <!-- Web3.js for EVM wallets -->
   <script src="https://cdn.jsdelivr.net/npm/web3@4.5.0/dist/web3.min.js"></script>
-  <!-- WalletConnect for EVM wallet QR support -->
   <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
-  <!-- 1inch API used for swaps (EVM) -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -85,7 +82,6 @@
     </div>
   </div>
   <script>
-    // --- Wallet connection logic ---
     let currentProvider;
     let currentAccount;
     let web3;
@@ -95,7 +91,6 @@
       document.getElementById('swapBtn').disabled = !enabled;
     }
 
-    // MetaMask / Trust
     async function connectMetaMask() {
       if (window.ethereum) {
         try {
@@ -119,7 +114,6 @@
       }
     }
 
-    // Phantom - EVM & Solana
     async function connectPhantomWallet() {
       if (window.phantom && window.phantom.solana) {
         try {
@@ -133,24 +127,20 @@
           document.getElementById('swapSection').style.display = 'block';
           document.getElementById('walletPopupBg').style.display = 'none';
           currentProvider = 'Phantom';
-          enableSwapForm(false); // Solana swap logic not implemented here
+          enableSwapForm(false);
         } catch (e) {
           console.error('Wallet connection error:', e);
         }
       } else {
-        // Phantom not installed, show QR code for mobile connect
         openPhantomMobileConnect();
       }
     }
 
-    // Phantom mobile fallback: open Phantom universal link for mobile wallet connect
     function openPhantomMobileConnect() {
-      // Phantom deep link for mobile wallet connect
       const connectUrl = "https://phantom.app/ul/v1/connect?app_url=" + encodeURIComponent(window.location.origin);
       window.open(connectUrl, "_blank");
     }
 
-    // Trust Wallet (EVM)
     async function connectTrustWallet() {
       if (window.ethereum && window.ethereum.isTrust) {
         try {
@@ -174,7 +164,6 @@
       }
     }
 
-    // WalletConnect (EVM, QR)
     async function connectWalletConnect() {
       if (walletConnectProvider) {
         await walletConnectProvider.disconnect();
@@ -249,14 +238,12 @@
     document.getElementById('walletConnectBtn').addEventListener('click', connectWalletConnect);
     document.getElementById('disconnectWalletBtn').addEventListener('click', disconnectWallet);
 
-    // --- DEX Swap Logic (EVM only, using 1inch API) ---
     document.getElementById('swapBtn').addEventListener('click', async () => {
       const statusBox = document.getElementById('statusBox');
       statusBox.style.display = 'block';
       statusBox.className = 'status info';
       statusBox.textContent = 'Checking token data and preparing swap...';
 
-      // Get user input
       const network = document.getElementById('networkSelect').value;
       const fromToken = document.getElementById('fromTokenInput').value.trim();
       const toToken = document.getElementById('toTokenInput').value.trim();
@@ -274,7 +261,6 @@
       }
 
       try {
-        // 1inch API expects token addresses, not symbols
         const fromTokenAddr = fromToken.startsWith('0x') ? fromToken : await getTokenAddress(fromToken, network);
         const toTokenAddr = toToken.startsWith('0x') ? toToken : await getTokenAddress(toToken, network);
 
@@ -284,13 +270,9 @@
           return;
         }
 
-        // Get decimals for input token
         const decimals = await getTokenDecimals(fromTokenAddr);
-
-        // Convert amount to Wei (or token decimals)
         const amountWei = (BigInt(Math.floor(Number(amount) * 10 ** decimals))).toString();
 
-        // Get quote from 1inch API
         statusBox.textContent = 'Requesting best price route from 1inch...';
         const apiBase = get1inchApiBase(network);
         const quoteUrl = `${apiBase}/quote?fromTokenAddress=${fromTokenAddr}&toTokenAddress=${toTokenAddr}&amount=${amountWei}`;
@@ -298,11 +280,9 @@
         if (!quoteRes.ok) throw new Error('Failed to get quote');
         const quoteData = await quoteRes.json();
 
-        // Show expected output
         statusBox.className = 'status info';
         statusBox.textContent = `Expected output: ${BigInt(quoteData.toTokenAmount) / BigInt(10 ** quoteData.toToken.decimals)} ${quoteData.toToken.symbol}. Preparing swap...`;
 
-        // Approve if needed (for ERC20)
         if (fromTokenAddr !== '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') {
           const allowanceUrl = `${apiBase}/approve/allowance?tokenAddress=${fromTokenAddr}&walletAddress=${currentAccount}`;
           const allowanceRes = await fetch(allowanceUrl);
@@ -321,14 +301,12 @@
           }
         }
 
-        // Get swap data from 1inch API
         statusBox.textContent = 'Please confirm the transaction in your wallet...';
         const swapUrl = `${apiBase}/swap?fromTokenAddress=${fromTokenAddr}&toTokenAddress=${toTokenAddr}&amount=${amountWei}&fromAddress=${currentAccount}&slippage=1`;
         const swapRes = await fetch(swapUrl);
         if (!swapRes.ok) throw new Error('Swap API request failed');
         const swapData = await swapRes.json();
 
-        // Send swap tx using web3
         const txParams = {
           from: swapData.tx.from,
           to: swapData.tx.to,
@@ -345,7 +323,6 @@
       }
     });
 
-    // Helper: Get token address by symbol using 1inch token list (main tokens only)
     async function getTokenAddress(symbol, chainId) {
       try {
         const apiBase = get1inchApiBase(chainId);
@@ -358,7 +335,6 @@
       }
     }
 
-    // Helper: get decimals for a token
     async function getTokenDecimals(tokenAddress) {
       if (tokenAddress === '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') return 18;
       const erc20ABI = [
@@ -368,10 +344,8 @@
       return await tokenContract.methods.decimals().call();
     }
 
-    // Helper: get 1inch API base url per chain
     function get1inchApiBase(chainId) {
       return `https://api.1inch.dev/swap/v5.2/${chainId}`;
     }
   </script>
- </body>
- 
+</body>

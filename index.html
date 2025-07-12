@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -228,7 +228,6 @@
       <a href="https://fixercoin.com" target="_blank" style="color:#ffe2b0; text-decoration:underline;">Learn More</a>
     </div>
   </div>
-  <!-- Popup wallet select -->
   <div class="popup-bg" id="walletPopupBg">
     <div class="popup" id="walletPopup">
       <div style="font-weight:bold; font-size:1.07em; margin-bottom:13px;">Select Wallet</div>
@@ -239,7 +238,67 @@
       <button class="wallet-popup-btn" id="popupClose">Cancel</button>
     </div>
   </div>
-  <!-- Ethers.js, WalletConnect, Coinbase Wallet SDK, Keystone SDK: Only load if needed -->
-  <!-- ... keep your scripts for DEX, wallet connection, etc ... -->
+  <script>
+    const connectMetaMask = async () => {
+      if (typeof window.ethereum !== 'undefined') {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          console.log('Connected to MetaMask:', accounts);
+          document.getElementById('userAddress').innerText = accounts[0];
+          document.getElementById('userAddress').style.display = 'inline-block';
+          document.getElementById('connectWalletBtn').style.display = 'none';
+        } catch (error) {
+          console.error('Error connecting to MetaMask:', error);
+        }
+      } else {
+        console.log('MetaMask is not installed.');
+      }
+    };
+
+    const connectPhantomWallet = async () => {
+      if (typeof window.phantom !== 'undefined' && window.phantom.solana) {
+        try {
+          const provider = window.phantom.solana;
+          const response = await provider.connect();
+          console.log('Connected to Phantom Wallet:', response.publicKey.toString());
+          document.getElementById('userAddress').innerText = response.publicKey.toString();
+          document.getElementById('userAddress').style.display = 'inline-block';
+          document.getElementById('connectWalletBtn').style.display = 'none';
+        } catch (error) {
+          console.error('Error connecting to Phantom Wallet:', error);
+        }
+      } else {
+        console.log('Phantom Wallet is not installed.');
+      }
+    };
+
+    const connectTrustWallet = async () => {
+      if (typeof window.ethereum !== 'undefined' && window.ethereum.isTrust) {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          console.log('Connected to Trust Wallet:', accounts);
+          document.getElementById('userAddress').innerText = accounts[0];
+          document.getElementById('userAddress').style.display = 'inline-block';
+          document.getElementById('connectWalletBtn').style.display = 'none';
+        } catch (error) {
+          console.error('Error connecting to Trust Wallet:', error);
+        }
+      } else {
+        console.log('Trust Wallet is not installed.');
+      }
+    };
+
+    document.getElementById('connectWalletBtn').addEventListener('click', () => {
+      document.getElementById('walletPopupBg').style.display = 'block';
+    });
+
+    document.getElementById('popupClose').addEventListener('click', () => {
+      document.getElementById('walletPopupBg').style.display = 'none';
+    });
+
+    document.getElementById('metamaskBtn').addEventListener('click', connectMetaMask);
+    document.getElementById('phantomBtn').addEventListener('click', connectPhantomWallet);
+    document.getElementById('trustBtn').addEventListener('click', connectTrustWallet);
+  </script>
 </body>
-</html>
+  </html>

@@ -1,0 +1,315 @@
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: white;
+  margin: 0;
+  color: #3c1e06;
+  font-size: 0.95em;
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 4vw;
+  background: #3c1e06;
+  border-bottom: 1px solid #7c4d03;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.logo {
+  font-size: 1.5em;
+  color: #ffe2b0;
+  font-weight: bold;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  width: 36px;
+  height: 36px;
+  margin-right: 10px;
+}
+
+.wallet-address {
+  color: #ffe2b0;
+  font-size: 1em;
+  font-weight: 500;
+  background: #563a19;
+  padding: 6px 14px;
+  border-radius: 7px;
+  margin-left: 12px;
+  word-break: break-all;
+}
+
+.connect-btn {
+  background: linear-gradient(90deg, #a66c18, #3c1e06);
+  color: #ffe2b0;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  padding: 9px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 1px;
+  margin: 0 4px;
+  transition: background 0.15s;
+}
+
+.connect-btn:active { background: #7c4d03; }
+
+.main-content {
+  width: 100%;
+  max-width: 520px;
+  margin: 30px auto 0 auto;
+  background: #4a2d09;
+  border-radius: 14px;
+  box-shadow: 0 2px 16px #7c4d0388;
+  padding: 32px 22px 22px 22px;
+  min-height: 300px;
+  flex: 1 1 auto;
+}
+
+.section-title {
+  font-size: 1.15em;
+  color: #ffe2b0;
+  font-weight: 700;
+  margin-bottom: 14px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #ffe2b0;
+}
+
+input, select, button.swap-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 7px;
+  border: 1px solid #a66c18;
+  margin-bottom: 13px;
+  font-size: 1em;
+  background: #3c1e06;
+  color: #ffe2b0;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+input:focus, select:focus {
+  border-color: #ffe2b0;
+  outline: none;
+}
+
+button.swap-btn {
+  background: linear-gradient(90deg, #a66c18, #3c1e06);
+  color: #ffe2b0;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+button.swap-btn:disabled {
+  background: #bfa770;
+  cursor: not-allowed;
+}
+
+.fee-note {
+  font-size: 0.98em;
+  color: #ffe2b0;
+  margin-bottom: 12px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.status {
+  margin: 6px 0 13px 0;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 1em;
+  word-break: break-word;
+  transition: background 0.2s;
+}
+
+.status.success { background: #6d4e0c; color: #ffe2b0;}
+.status.error { background: #7c2d12; color: #ffe2b0;}
+.status.info { background: #5c3d1c; color: #ffe2b0;}
+
+.center { text-align: center;}
+
+.ad-section {
+  margin: 32px auto 0 auto;
+  max-width: 520px;
+  border-radius: 11px;
+  background: #a66c18;
+  border: 1.5px solid #7c4d03;
+  padding: 18px 12px;
+  box-shadow: 0 2px 10px #7c4d0333;
+  color: #fff8ec;
+}
+
+.ad-title {font-size:1.13em; font-weight:700; color:#ffe2b0; margin-bottom:7px;}
+.ad-desc {font-size:1em; color:#fff8ec;}
+
+.popup-bg {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 20;
+  background: rgba(60,30,6,0.13);
+}
+
+.popup {
+  background:#4a2d09;
+  color:#ffe2b0;
+  border-radius:7px;
+  box-shadow:0 2px 15px #7c4d0388;
+  max-width:95vw;
+  width: 340px;
+  margin:60px auto;
+  padding:18px 16px;
+  position: relative;
+}
+
+.wallet-popup-btn {
+  display:block;
+  width:100%;
+  margin:7px 0;
+  background:#3c1e06;
+  color:#ffe2b0;
+  border:none;
+  border-radius:6px;
+  font-size:1.07em;
+  padding:11px 0;
+  cursor:pointer;
+  transition: background 0.2s;
+}
+
+.wallet-popup-btn:hover { background:#a66c18;}
+
+.fixo-logo-box {text-align:center; margin-top:22px;}
+.fixo-logo-img {width:95px; height:95px; object-fit:contain; margin-bottom:11px;}
+.fixo-logo-text {font-size:1.8em; font-weight:bold; color:#ffe2b0; letter-spacing:2px;}
+
+.network-select {
+  width:100%;
+  padding:10px;
+  border-radius:7px;
+  border:1px solid #a66c18;
+  margin-bottom:13px;
+  font-size:1em;
+  background:#3c1e06;
+  color:#ffe2b0;
+}
+
+.custom-brand-bar {
+  width: 100%;
+  background: linear-gradient(90deg,#7c4d03,#3c1e06);
+  text-align: center;
+  padding: 8px 0;
+  color: #ffe2b0;
+  font-size: 1em;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.features-list {margin:13px 0 0 0;}
+.features-list ul {padding-left:16px;}
+.features-list li {margin-bottom:7px;}
+
+/* Responsive adjustments */
+@media (max-width:900px) {
+  body {
+    font-size: 0.98em;
+  }
+  .main-content, .ad-section {
+    max-width: 98vw;
+    margin-left: 1vw;
+    margin-right: 1vw;
+    padding: 18px 2vw 18px 2vw;
+  }
+  .header {
+    padding: 11px 2vw;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .fixo-logo-img {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+@media (max-width:700px) {
+  body {
+    font-size: 1em;
+  }
+  .main-content,
+  .ad-section {
+    max-width: 99vw;
+    margin-left: 0.5vw;
+    margin-right: 0.5vw;
+    padding: 12px 2vw 12px 2vw;
+  }
+  .header {
+    padding: 7px 2vw;
+  }
+  .fixo-logo-img {
+    width: 55px;
+    height: 55px;
+  }
+}
+
+@media (max-width:500px) {
+  html, body {
+    font-size: 1em;
+    min-width: 100vw;
+    overflow-x: hidden;
+  }
+  .main-content,
+  .ad-section {
+    padding: 6px 1vw 6px 1vw;
+    border-radius: 8px;
+    font-size: 0.96em;
+    margin: 0.5em 0.5vw 0 0.5vw;
+  }
+  .logo img {
+    width: 23px;
+    height: 23px;
+  }
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    padding: 5px 1vw;
+    font-size: 0.98em;
+  }
+  .popup {
+    width: 97vw;
+    max-width: 97vw !important;
+    padding: 8px 2vw;
+  }
+  .fixo-logo-img {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: #ffe2b033;
+}
+::-webkit-scrollbar-thumb {
+  background: #a66c18cc;
+  border-radius: 6px;
+}

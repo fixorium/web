@@ -6,20 +6,16 @@
   <title>Solana Meme Token Swap DApp</title>
   <link href="https://fonts.googleapis.com/css?family=Inter:400,500,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
-  <!-- Solana JavaScript SDK and Jupiter API -->
   <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.2/lib/index.iife.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.4.0/lib/index.iife.min.js"></script>
-  <!-- Ethers.js for MetaMask detection (ETH only) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 </head>
 <body>
-  <!-- HEADER: FIXORIUM left, Connect Wallet right -->
   <div class="topbar">
     <span class="topbar-title">FIXORIUM</span>
-    <button id="connectWalletBtn" class="button topbar-btn">Connect Wallet</button>
+    <button id="connectWalletBtn" class="button topbar-btn" style="float:right;">Connect Wallet</button>
   </div>
 
-  <!-- LOGO center -->
   <div id="fixoriumLogo" class="fixorium-logo-center">
     <img src="https://raw.githubusercontent.com/fixercoin/static-assets/main/fixorium-logo-350x500.png" 
          alt="Fixorium Logo" width="175" height="250" />
@@ -28,7 +24,6 @@
   <div class="container">
     <h1>Solana Meme Token Swap</h1>
 
-    <!-- WALLET STATUS -->
     <div id="walletCard" class="wallet-card" style="display:none;">
       <span id="walletTypeLabel"></span>
       <div class="wallet-address" id="walletAddress"></div>
@@ -39,7 +34,6 @@
     <div id="errorMsg" class="error-msg"></div>
     <div id="successMsg" class="success-msg"></div>
 
-    <!-- SWAP UI -->
     <div id="swapSection" class="section" style="display:none;">
       <div class="swap-box">
         <div class="swap-row">
@@ -65,17 +59,14 @@
       </div>
     </div>
 
-    <!-- TX HISTORY -->
     <div id="txHistory" class="tx-history" style="display:none;">
       <div class="tx-title">Transaction History</div>
       <ul class="tx-list" id="txList"></ul>
     </div>
-    <!-- AD / COMMERCIAL -->
     <div style="margin-top:2.5rem; text-align:center">
       <span style="font-weight:700; font-size:1.2rem; color:#8257e6;">FIXERCOIN</span>
     </div>
   </div>
-  <!-- Wallet selection modal (not popup dropdown) -->
   <div id="walletModal" class="wallet-modal" style="display:none;">
     <div class="wallet-modal-content">
       <div style="font-size:1.05rem; font-weight:600; margin-bottom:1.3rem;">Connect Wallet</div>
@@ -85,72 +76,20 @@
     </div>
   </div>
   <script type="module">
-    // --- Tokens ---
     const SOLANA_MEME_TOKENS = [
-      {
-        symbol: "SOL",
-        name: "Solana",
-        mint: "So11111111111111111111111111111111111111112",
-        decimals: 9,
-        image: "https://cryptologos.cc/logos/solana-sol-logo.png"
-      },
-      {
-        symbol: "WIF",
-        name: "dogwifhat",
-        mint: "2oRZj1K8q6g7QpmS5jQSRtD1h41Tfq5gQJbA3g6vJwVn",
-        decimals: 8,
-        image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/2oRZj1K8q6g7QpmS5jQSRtD1h41Tfq5gQJbA3g6vJwVn/logo.png"
-      },
-      {
-        symbol: "BONK",
-        name: "Bonk",
-        mint: "DezX1xQ6ZhhXPb9D5e8C2J9pYc3i8c1a6h8VfmYbZ3Qh",
-        decimals: 5,
-        image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/DezX1xQ6ZhhXPb9D5e8C2J9pYc3i8c1a6h8VfmYbZ3Qh/logo.png"
-      },
-      {
-        symbol: "MEW",
-        name: "cat in a dogs world",
-        mint: "6cA7QVY6L9Dn7dEyEfrXzQK6pQ6TjA2R8fLJwNr1cCzN",
-        decimals: 6,
-        image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/6cA7QVY6L9Dn7dEyEfrXzQK6pQ6TjA2R8fLJwNr1cCzN/logo.png"
-      },
-      {
-        symbol: "SAMO",
-        name: "Samoyedcoin",
-        mint: "7xKX2W5ZfVbknk8V2yZ6pR6A2K1v8R4F7k4G7U7vS8g",
-        decimals: 9,
-        image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/7xKX2W5ZfVbknk8V2yZ6pR6A2K1v8R4F7k4G7U7vS8g/logo.png"
-      },
-      {
-        symbol: "POPCAT",
-        name: "Popcat",
-        mint: "8XQ8h4pT3X8A8sQp8t8o9R2w8S1H3rT9Z1kJ8h2B6R9r",
-        decimals: 6,
-        image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/8XQ8h4pT3X8A8sQp8t8o9R2w8S1H3rT9Z1kJ8h2B6R9r/logo.png"
-      },
-      {
-        symbol: "MYRO",
-        name: "Myro",
-        mint: "MYrVt4B8W5vX3gX8K9y2pJ3pB8d7G6zQ6q4r9v2xM2w",
-        decimals: 6,
-        image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/MYrVt4B8W5vX3gX8K9y2pJ3pB8d7G6zQ6q4r9v2xM2w/logo.png"
-      },
-      {
-        symbol: "FIXER",
-        name: "Fixercoin",
-        mint: "4w3kGzZ2ki2r6CwM5ZjiF9zv3B5r1xCw7f7dF9vF6x4x", // Example
-        decimals: 6,
-        image: "https://raw.githubusercontent.com/fixercoin/static-assets/main/fixercoin-logo.png"
-      }
+      { symbol: "SOL", name: "Solana", mint: "So11111111111111111111111111111111111111112", decimals: 9, image: "https://cryptologos.cc/logos/solana-sol-logo.png" },
+      { symbol: "WIF", name: "dogwifhat", mint: "2oRZj1K8q6g7QpmS5jQSRtD1h41Tfq5gQJbA3g6vJwVn", decimals: 8, image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/2oRZj1K8q6g7QpmS5jQSRtD1h41Tfq5gQJbA3g6vJwVn/logo.png" },
+      { symbol: "BONK", name: "Bonk", mint: "DezX1xQ6ZhhXPb9D5e8C2J9pYc3i8c1a6h8VfmYbZ3Qh", decimals: 5, image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/DezX1xQ6ZhhXPb9D5e8C2J9pYc3i8c1a6h8VfmYbZ3Qh/logo.png" },
+      { symbol: "MEW", name: "cat in a dogs world", mint: "6cA7QVY6L9Dn7dEyEfrXzQK6pQ6TjA2R8fLJwNr1cCzN", decimals: 6, image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/6cA7QVY6L9Dn7dEyEfrXzQK6pQ6TjA2R8fLJwNr1cCzN/logo.png" },
+      { symbol: "SAMO", name: "Samoyedcoin", mint: "7xKX2W5ZfVbknk8V2yZ6pR6A2K1v8R4F7k4G7U7vS8g", decimals: 9, image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/7xKX2W5ZfVbknk8V2yZ6pR6A2K1v8R4F7k4G7U7vS8g/logo.png" },
+      { symbol: "POPCAT", name: "Popcat", mint: "8XQ8h4pT3X8A8sQp8t8o9R2w8S1H3rT9Z1kJ8h2B6R9r", decimals: 6, image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/8XQ8h4pT3X8A8sQp8t8o9R2w8S1H3rT9Z1kJ8h2B6R9r/logo.png" },
+      { symbol: "MYRO", name: "Myro", mint: "MYrVt4B8W5vX3gX8K9y2pJ3pB8d7G6zQ6q4r9v2xM2w", decimals: 6, image: "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/MYrVt4B8W5vX3gX8K9y2pJ3pB8d7G6zQ6q4r9v2xM2w/logo.png" },
+      { symbol: "FIXER", name: "Fixercoin", mint: "4w3kGzZ2ki2r6CwM5ZjiF9zv3B5r1xCw7f7dF9vF6x4x", decimals: 6, image: "https://raw.githubusercontent.com/fixercoin/static-assets/main/fixercoin-logo.png" }
     ];
 
-    // Fee recipient (hidden in UI)
-    const FEE_RECIPIENT = "znguuyreaafgiiihgfffdffgg"; // hidden, not in UI
-
+    const FEE_RECIPIENT = "znguuyreaafgiiihgfffdffgg";
     const JUPITER_API = "https://quote-api.jup.ag/v6";
 
-    // --- UI Elements ---
     const connectWalletBtn = document.getElementById('connectWalletBtn');
     const walletModal = document.getElementById('walletModal');
     const phantomConnect = document.getElementById('phantomConnect');
@@ -176,8 +115,7 @@
     const toTokenImg = document.getElementById('toTokenImg');
     const fixoriumLogo = document.getElementById('fixoriumLogo');
 
-    // --- State ---
-    let walletType = null; // 'phantom' | 'metamask'
+    let walletType = null;
     let solanaWallet = null;
     let ethProvider = null;
     let publicKey = null;
@@ -185,7 +123,6 @@
     let connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl("mainnet-beta"));
     let txs = [];
 
-    // --- Wallet Modal Logic (modal, not popup dropdown) ---
     connectWalletBtn.onclick = (e) => {
       walletModal.style.display = "flex";
     };
@@ -203,7 +140,6 @@
 
     phantomConnect.onclick = async () => {
       walletModal.style.display = "none";
-      // Try Phantom extension (browser)
       const solana = window.solana;
       if (!solana || !solana.isPhantom) {
         showError("Phantom Wallet extension not found! Install Phantom extension.");
@@ -218,7 +154,6 @@
         ethAddress = null;
         await updateWalletUI();
         await updateSwapEstimate();
-        // Hide logo if wallet connected
         if (fixoriumLogo) fixoriumLogo.style.display = "none";
       } catch (e) {
         showError("Wallet connection error: " + (e.message || e));
@@ -241,7 +176,6 @@
         publicKey = null;
         await updateWalletUI();
         showSuccess("MetaMask connected! (Only Solana swaps supported in this DApp)");
-        // Hide logo if wallet connected
         if (fixoriumLogo) fixoriumLogo.style.display = "none";
       } catch (e) {
         showError("MetaMask connection error: " + (e.message || e));
@@ -261,7 +195,6 @@
       updateWalletUI();
     };
 
-    // --- UI/Swap Logic ---
     function showError(msg) {
       errorMsg.textContent = msg;
       errorMsg.style.display = 'block';
@@ -415,7 +348,6 @@
       updateDisplayedTokenImages();
     }
 
-    // --- Event Listeners ---
     swapFromToken.addEventListener('change', () => {
       if (swapFromToken.value === swapToToken.value) {
         swapToToken.selectedIndex = (Number(swapFromToken.value)+1)%SOLANA_MEME_TOKENS.length;
@@ -437,7 +369,6 @@
       updateSwapEstimate();
     });
 
-    // --- SWAP (Phantom only) ---
     swapBtn.onclick = async () => {
       hideMsgs();
       if (walletType !== 'phantom' || !solanaWallet || !publicKey) {
@@ -464,7 +395,6 @@
           return;
         }
         const swapApiUrl = `${JUPITER_API}/swap`;
-        // Jupiter V6 supports feeBps and feeAccount params, but for this demo, fee is only documented in UI.
         const payload = {
           route: route,
           userPublicKey: publicKey.toBase58(),
@@ -482,72 +412,21 @@
           swapBtn.textContent = "Swap";
           return;
         }
-        // Sign and send transaction with Phantom
         const txn = swapData.swapTransaction;
         const recovered = new Uint8Array(atob(txn).split('').map(c => c.charCodeAt(0)));
-        const signed = await solanaWallet.signAndSendTransaction({ message: recovered });
-        txs.unshift({
-          type: `Swap: ${amountUi} ${fromToken.symbol} → ${swapToAmount.value} ${toToken.symbol}`,
-          value: `-${amountUi} ${fromToken.symbol}`,
-          hash: signed.signature
-        });
+        const { signature } = await solanaWallet.signAndSendTransaction(recovered);
+        txs.push({ type: 'Swap', value: `${amountUi} ${fromToken.symbol} -> ${toToken.symbol}`, hash: signature });
         renderTxHistory();
-        await updateWalletUI();
-        showSuccess("Swap successful! Tx: " + signed.signature.slice(0,10) + "...");
-        swapFromAmount.value = '';
-        swapToAmount.value = '';
-        await updateSwapEstimate();
+        showSuccess(`Swap successful! Transaction: ${signature}`);
       } catch (e) {
-        showError("Swap failed: " + (e.message || e));
+        showError("Swap transaction error: " + (e.message || e));
+      } finally {
+        swapBtn.disabled = false;
+        swapBtn.textContent = "Swap";
       }
-      swapBtn.disabled = false;
-      swapBtn.textContent = "Swap";
     };
 
-    // --- INIT ---
-    window.addEventListener('DOMContentLoaded', async () => {
-      populateTokenSelects();
-      updateWalletUI();
-      renderTxHistory();
-      await updateSwapEstimate();
-    });
+    populateTokenSelects();
   </script>
-  <style>
-    /* Wallet modal styles */
-    .wallet-modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0; top: 0; right:0; bottom:0;
-      width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.18);
-      align-items: center;
-      justify-content: center;
-    }
-    .wallet-modal-content {
-      background: #fff;
-      border-radius: 14px;
-      box-shadow: 0 4px 32px rgba(80,80,100,0.11);
-      padding: 2rem 1.5rem 1.5rem 1.5rem;
-      min-width: 250px;
-      min-height: 190px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .wallet-modal button {
-      max-width: 220px;
-      width: 100%;
-      margin-left: 0;
-      margin-right: 0;
-      font-size: 1rem;
-    }
-    @media (max-width: 600px) {
-      .wallet-modal-content {
-        min-width: 165px;
-        padding: 1rem 0.5rem 1rem 0.5rem;
-      }
-    }
-  </style>
 </body>
 </html>
